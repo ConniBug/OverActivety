@@ -42,7 +42,7 @@ exec("ipconfig", (error, stdout, stderr) => {
             //stdout = stdout.split("inet ")[0].split("  ")[0].split("/")[0];
 
             console.log("----");
-            stdout = (stdout.split("inet"))
+            stdout = stdout.split("inet ");
             stdout.forEach(e => {
                 
                 if(e.includes(" ")) {
