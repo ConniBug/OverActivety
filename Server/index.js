@@ -18,6 +18,19 @@ const app = http.createServer( async (req, res) => {
 
 app.listen(5000);
 
+function char_count(str, letter) 
+{
+ var letter_Count = 0;
+ for (var position = 0; position < str.length; position++) 
+ {
+    if (str.charAt(position) == letter) 
+      {
+      letter_Count += 1;
+      }
+  }
+  return letter_Count;
+}
+
 platform_t = "unknown";
 
 localIPs = [];
@@ -46,9 +59,10 @@ exec("ipconfig", (error, stdout, stderr) => {
             stdout.forEach(e => {
                 
                 if(e.includes(" ")) {
-                    console.log(e.split(" "))
-
-                    localIPs.push(e.split(" ")[0]);
+                    if(char_count(e.split(" ")[0], ".") > 3) {
+                        console.log(e.split(" ")[0])
+                        localIPs.push(e.split(" ")[0]);
+                    }
                 }
             });
             console.log("----");
