@@ -1,7 +1,3 @@
-
-//
-// LanNetworkAdaptorName = "WiFi";
-//
 const { exec } = require("child_process");
 const http = require ('http'); // to create server
 const { platform } = require("os");
@@ -18,38 +14,10 @@ const app = http.createServer( async (req, res) => {
     const parsedURL = url.parse(req.url, true);
     
     handle(parsedURL, res, req);
-});//End of create server.
+});
 
 app.listen(5000);
 
-// var options = {
-//     networkProtocol: ping.NetworkProtocol.IPv4,
-//     packetSize: 16,
-//     retries: 1,
-//     sessionId: (process.pid % 65535),
-//     timeout: 2000,
-//     ttl: 128
-// };
-
-// var session = ping.createSession (options);
-
-// // Get LocalIP
-// const { networkInterfaces } = require('os');
-
-// const nets = networkInterfaces();
-// const LanIPs = Object.create(null); // Or just '{}', an empty object
-
-// for (const name of Object.keys(nets)) {
-//     for (const net of nets[name]) {
-//         // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
-//         if (net.family === 'IPv4' && !net.internal) {
-//             if (!LanIPs[name]) {
-//                 LanIPs[name] = [];
-//             }
-//             LanIPs[name].push(net.address);
-//         }
-//     }
-// }
 platform_t = "unknown";
 
 localIPs = [];
@@ -58,7 +26,7 @@ console.log("Looking for local IPv4 ips");
 console.log("Detecting platform");
 exec("ipconfig", (error, stdout, stderr) => {
     if (error) {
-        console.log(`error: ${error.message}`);
+//        console.log(`error: ${error.message}`);
         exec("ip -4 addr", (error, stdout, stderr) => {
             if (error) {
                 console.log(`error: ${error.message}`);
