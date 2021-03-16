@@ -70,11 +70,15 @@ exec("ipconfig", (error, stdout, stderr) => {
                 platform_t == "err"
                 return;
             }
-            console.log(`stdout: ${stdout}`);
-            stdout = stdout.split("inet ")[0].split("  ")[0].split("/")[0];
+            console.log(`stdout: ${stdout}`);   
+            //stdout = stdout.split("inet ")[0].split("  ")[0].split("/")[0];
 
-            localIPs.push(stdout);
+            console.log("----");
+            console.log(stdout.split("inet "))
+            console.log("----");
             
+            localIPs.push(stdout);
+
             platform_t = "linux";
             console.log(`Platform is ${platform} - ${platform_t}`);
             console.log("Found " + localIPs.length + " local ips.");
