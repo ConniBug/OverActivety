@@ -1,15 +1,15 @@
 platform_t = "unknown";
-localIPs = [];
-wanIP = "";
+
+serverName = "Connis Server";
 
 const { exec } = require("child_process");
 const http = require ('http'); // to create server
-const { platform } = require("os");
+const { platform, hostname } = require("os");
 const url = require('url');
 const request = require('request');
 const colors = require('colors');
 
-logLevel = "ALL";
+logLevel = "ERROR";
 function getLogLevelNum(level) {
     if(level == "GENERIC")  return 1;
     if(level == "ERROR")    return 2;
@@ -22,8 +22,8 @@ function getLogLevelNum(level) {
 function log(message, type = "DEBUG") {
     if(getLogLevelNum(type) > getLogLevelNum(logLevel))
     {
-        console.log("Log level: " + getLogLevelNum(type));
-        console.log("Config log level: " + getLogLevelNum(logLevel));
+        // console.log("Log level: " + getLogLevelNum(type));
+        // console.log("Config log level: " + getLogLevelNum(logLevel));
         return;
     }
 
@@ -57,85 +57,6 @@ function char_count(str, letter)  {
     }
     return letter_Count;
 }
-function setupLocalIPs() {
-    localIPs = [];
-
-    log("--------------------------");
-    log("Looking for local IPv4 ips");
-    log("Detecting platform");
-    exec("ipconfig", (error, stdout, stderr) => {
-        if (error) {
-            exec("ifconfig", (error, stdout, stderr) => {
-                if (error) {
-                    log(`if config error -> error`, "ERROR");
-                    log(`error: ${error.message}`, "ERROR");
-                    platform_t == "err"
-                    return;
-                }
-                if (stderr) {
-                    log(`if config error -> stderr`, "ERROR");
-                    log(`stderr: ${stderr}`);
-                    log(`if config error: ${stderr}`, "ERROR");
-                    platform_t == "err"
-                    return;
-                }
-    
-                stdout.split("inet ").forEach(e => {
-                    if(e.includes(" ")) {
-                        if(char_count(e.split(" ")[0], ".") == 3) {
-                            log(e.split(" ")[0])
-                            localIPs.push(e.split(" ")[0]);
-                        }
-                    }
-                });
-    
-                platform_t = "linux";
-                log(`Platform is ${platform} - ${platform_t}`, "DEBUG");
-                log("Found " + localIPs.length + " local ips.", "DEBUG");
-                log(localIPs, "DEBUG");
-            });
-            return;
-        }
-        if (stderr) {
-            log(`stderr: ${stderr}`);
-            platform_t == "err"
-            return;
-        }
-    
-        stdout = stdout.split("\r\n");
-        stdout[1] = "";
-    
-        stdout.forEach(e => {
-            ip = e.split("   IPv4 Address. . . . . . . . . . . : ")[1];
-            if(ip) {
-                log("Found: " + ip);
-                localIPs.push(ip);
-            }
-        });
-        platform_t = "windows";
-        log(`Platform is ${platform} - ${platform_t}`, "DEBUG");
-        log("Found " + localIPs.length + " local ips.", "DEBUG");
-        log(localIPs, "DEBUG");
-    });
-}
-function setupWanIPs() {
-    request('http://bot.whatismyipaddress.com', { json: false }, (err, res, body) => {
-        if (err) { 
-            log("--------------------------", "ERROR");
-            log("Looking for Wan IPv4 ip", "ERROR");
-            log(err, "ERROR");
-            log("--------------------------", "ERROR");
-            return console.log(err); 
-        }
-        wanIP = body;
-        log("--------------------------", "DEBUG");
-        log("Looking for Wan IPv4 ip", "DEBUG");
-        log(body, "DEBUG");
-        log("Found WanIP:" + body + ".", "DEBUG");
-        log("--------------------------", "DEBUG");
-
-    });
-}
 function getDateTime() {
 
     var date = new Date();
@@ -166,8 +87,108 @@ const app = http.createServer( async (req, res) => {
 });
 app.listen(5000);
 
-setupLocalIPs();
-setupWanIPs();
+const asyncGetLanIPs = () => {
+    return new Promise(resolve => {
+        localIPs = [];
+
+        log("--------------------------");
+        log("Looking for local IPv4 ips");
+        exec("ipconfig", (error, stdout, stderr) => {
+            if (error) {
+                exec("ifconfig", (error, stdout, stderr) => {
+                    if (error) {
+                        log(`if config error -> error`, "ERROR");
+                        log(`error: ${error.message}`, "ERROR");
+                        return;
+                    }
+                    if (stderr) {
+                        log(`if config error -> stderr`, "ERROR");
+                        log(`stderr: ${stderr}`);
+                        log(`if config error: ${stderr}`, "ERROR");
+                        return;
+                    }
+        
+                    stdout.split("inet ").forEach(e => {
+                        if(e.includes(" ")) {
+                            if(char_count(e.split(" ")[0], ".") == 3) {
+                                log(e.split(" ")[0])
+                                localIPs.push(e.split(" ")[0]);
+                            }
+                        }
+                    });
+        
+                    platform_t = "linux";
+                    log("Found " + localIPs.length + " local ips.", "DEBUG");
+                    log(localIPs, "DEBUG");
+                });
+                return;
+            }
+            if (stderr) {
+                log(`stderr: ${stderr}`, "ERROR");
+                return;
+            }
+            stdout = stdout.split("\r\n");
+
+            // Remove windows banner cunt
+            stdout[1] = "";
+
+            // Some really weird fuckin logic
+            stdout.forEach(e => {
+                ip = e.split("   IPv4 Address. . . . . . . . . . . : ")[1];
+                if(ip) {
+                    log("Found: " + ip);
+                    localIPs.push(ip);
+                }
+            });
+            log("Found " + localIPs.length + " local ips.", "DEBUG");
+            log(localIPs, "DEBUG");
+            resolve(localIPs);
+            log("--------------------------");
+        });
+    });
+}
+const asyncGetWanIP = () => {
+    return new Promise(resolve => {
+        request('http://bot.whatismyipaddress.com', { json: false }, (err, res, body) => {
+            if (err) { 
+                log("--------------------------", "ERROR");
+                log("Looking for Wan IPv4 ip", "ERROR");
+                log(err, "ERROR");
+                log("--------------------------", "ERROR");
+                return console.log(err); 
+            }
+            log("--------------------------", "DEBUG");
+            log("Looking for Wan IPv4 ip", "DEBUG");
+            log(body, "DEBUG");
+            log("Found WanIP:" + body + ".", "DEBUG");
+            log("--------------------------", "DEBUG");
+            resolve(body);
+        });
+    });
+}
+const asyncHostname = () => {
+    return new Promise(resolve => {
+        exec("hostname", (error, stdout, stderr) => {
+            if (error) {
+                log(`getHostname error: ${error.message}`, "ERROR");
+                platform_t == "err"
+                return;
+            }
+            if (stderr) {
+                log(`getHostname stderr: ${stderr}`);
+                platform_t == "err"
+                return;
+            }       
+            stdout = stdout.replace(/\n/g, "");
+            stdout = stdout.replace(/\r/g, "");
+            log("--------------------------", "DEBUG");
+            log("Hostname is " + stdout + ".", "DEBUG");
+            log("--------------------------", "DEBUG");
+            resolve(stdout);
+            return stdout;
+        });
+    });
+}
 
 // Get client IP address from request object
 getClientAddress = function (req) {
@@ -180,28 +201,27 @@ getClientAddress = function (req) {
 };
 
 async function handle(parsedURL, res, req) {
-    var target = getClientAddress(req);
-    log(`---------------------`, "GENERIC");
+    log(`-----------------------------`, "GENERIC");
     log(`Handling new request.`, "GENERIC");
+    var target = getClientAddress(req);
     log(`Ip is: ${target.brightBlue}`, "GENERIC");
     log(`PathName: ${parsedURL.pathname.brightBlue}`, "GENERIC");
     
     if(parsedURL.pathname == "/info") {
         log(`Status Code: ${"202".brightBlue}`, "GENERIC");
-
-        res.statusCode = 202;
-        res.end(
-                    `
-                    name:Connis Desktop,
-                    wanIP:${wanIP},
-                    lanIP:${localIPs},
-                    hostname:spookiebois.club,
-                    uptime:12 Days,
-                    cpuUsage:243%,
-                    memoryUsage:12Gb/18Gb,
-                    ping:N/A,
-                    `
-        );
+            res.statusCode = 202;
+            res.end(
+                        `
+                        name:${serverName},
+                        wanIP:${await asyncGetWanIP()},
+                        lanIP:${await asyncGetLanIPs()},
+                        hostname:${await asyncHostname()},
+                        uptime:,
+                        cpuUsage:,
+                        memoryUsage:,
+                        ping:,
+                        `
+            );
 
 
     }
