@@ -1,10 +1,12 @@
 
 //
-LanNetworkAdaptorName = "WiFi";
+// LanNetworkAdaptorName = "WiFi";
 //
+const { exec } = require("child_process");
 const http = require ('http'); // to create server
+const { platform } = require("os");
 const url = require('url'); // to parse url
-var ping = require('net-ping');
+// var ping = require('net-ping');
 
 ///console.log(osu.cpus());
 ///console.log(osu.totalmem());
@@ -20,34 +22,94 @@ const app = http.createServer( async (req, res) => {
 
 app.listen(5000);
 
-var options = {
-    networkProtocol: ping.NetworkProtocol.IPv4,
-    packetSize: 16,
-    retries: 1,
-    sessionId: (process.pid % 65535),
-    timeout: 2000,
-    ttl: 128
-};
+// var options = {
+//     networkProtocol: ping.NetworkProtocol.IPv4,
+//     packetSize: 16,
+//     retries: 1,
+//     sessionId: (process.pid % 65535),
+//     timeout: 2000,
+//     ttl: 128
+// };
 
-var session = ping.createSession (options);
+// var session = ping.createSession (options);
 
-// Get LocalIP
-const { networkInterfaces } = require('os');
+// // Get LocalIP
+// const { networkInterfaces } = require('os');
 
-const nets = networkInterfaces();
-const LanIPs = Object.create(null); // Or just '{}', an empty object
+// const nets = networkInterfaces();
+// const LanIPs = Object.create(null); // Or just '{}', an empty object
 
-for (const name of Object.keys(nets)) {
-    for (const net of nets[name]) {
-        // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
-        if (net.family === 'IPv4' && !net.internal) {
-            if (!LanIPs[name]) {
-                LanIPs[name] = [];
+// for (const name of Object.keys(nets)) {
+//     for (const net of nets[name]) {
+//         // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+//         if (net.family === 'IPv4' && !net.internal) {
+//             if (!LanIPs[name]) {
+//                 LanIPs[name] = [];
+//             }
+//             LanIPs[name].push(net.address);
+//         }
+//     }
+// }
+platform_t = "unknown";
+
+localIPs = [];
+
+console.log("Looking for local IPv4 ips");
+console.log("Detecting platform");
+exec("ipconfig", (error, stdout, stderr) => {
+    if (error) {
+        console.log(`error: ${error.message}`);
+        exec("ip -4 addr", (error, stdout, stderr) => {
+            if (error) {
+                console.log(`error: ${error.message}`);
+                platform_t == "err"
+                return;
             }
-            LanIPs[name].push(net.address);
-        }
+            if (stderr) {
+                console.log(`stderr: ${stderr}`);
+                platform_t == "err"
+                return;
+            }
+            console.log(`stdout: ${stdout}`);
+            stdout = stdout.split("inet ")[0].split("  ")[0].split("/")[0];
+
+            localIPs.push(stdout);
+            
+            platform_t = "linux";
+            console.log(`Platform is ${platform} - ${platform_t}`);
+            console.log("Found " + localIPs.length + " local ips.");
+            console.log(localIPs);
+
+        });
+        return;
     }
-}
+    if (stderr) {
+        console.log(`stderr: ${stderr}`);
+        platform_t == "err"
+        return;
+    }
+    //console.log(`stdout: ${stdout}`);
+
+    // stdout = stdout.replace(/\r\n/g, "");
+    // stdout = stdout.replace(/ /g, "");
+    stdout = stdout.split("\r\n");
+    stdout[1] = "";
+
+    stdout.forEach(e => {
+        ip = e.split("   IPv4 Address. . . . . . . . . . . : ")[1];
+        if(ip) {
+            console.log("Found: " + ip);
+            localIPs.push(ip);
+        }
+    });
+    platform_t = "windows";
+    console.log(`Platform is ${platform} - ${platform_t}`);
+    console.log("Found " + localIPs.length + " local ips.");
+    console.log(localIPs);
+});
+
+p = 0;
+
 
 // Get client IP address from request object ----------------------
 getClientAddress = function (req) {
