@@ -27,7 +27,7 @@ console.log("Detecting platform");
 exec("ipconfig", (error, stdout, stderr) => {
     if (error) {
 //        console.log(`error: ${error.message}`);
-        exec("ip -4 addr", (error, stdout, stderr) => {
+        exec("ifconfig", (error, stdout, stderr) => {
             if (error) {
                 console.log(`error: ${error.message}`);
                 platform_t == "err"
@@ -43,15 +43,19 @@ exec("ipconfig", (error, stdout, stderr) => {
 
             console.log("----");
             console.log(stdout.split("inet"))
+            stdout.forEach(e => {
+                if(e.includes("/")) {
+                    localIPs.push(e.split(" ")[0]);
+                }
+            });
             console.log("----");
             
-            localIPs.push(stdout);
+            //localIPs.push(stdout);
 
             platform_t = "linux";
             console.log(`Platform is ${platform} - ${platform_t}`);
             console.log("Found " + localIPs.length + " local ips.");
             console.log(localIPs);
-
         });
         return;
     }
@@ -60,10 +64,7 @@ exec("ipconfig", (error, stdout, stderr) => {
         platform_t == "err"
         return;
     }
-    //console.log(`stdout: ${stdout}`);
 
-    // stdout = stdout.replace(/\r\n/g, "");
-    // stdout = stdout.replace(/ /g, "");
     stdout = stdout.split("\r\n");
     stdout[1] = "";
 
@@ -80,10 +81,8 @@ exec("ipconfig", (error, stdout, stderr) => {
     console.log(localIPs);
 });
 
-p = 0;
 
-
-// Get client IP address from request object ----------------------
+// Get client IP address from request object
 getClientAddress = function (req) {
     console.log(req.headers['x-forwarded-for']);
     console.log(req.connection.remoteAddress);
@@ -91,8 +90,8 @@ getClientAddress = function (req) {
     return (req.headers['x-forwarded-for'] || '').split(',')[0] 
     || req.connection.remoteAddress.split(":")[3];
 };
-async function handle(parsedURL, res, req)
-{
+
+async function handle(parsedURL, res, req) {
     if(parsedURL.pathname == "/info") {
         var target = getClientAddress(req);
         console.log(target);
