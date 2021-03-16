@@ -1,0 +1,2 @@
+
+C:\Users\frayb\Documents\GitHub\OverActivety\src\OverActivity>curl http://localhost:5000/info 
