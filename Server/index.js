@@ -42,9 +42,9 @@ exec("ipconfig", (error, stdout, stderr) => {
             //stdout = stdout.split("inet ")[0].split("  ")[0].split("/")[0];
 
             console.log("----");
-            console.log(stdout.split("inet"))
+            console.log(stdout.split("\n"))
             stdout.forEach(e => {
-                if(e.includes("/")) {
+                if(e.includes("inet")) {
                     localIPs.push(e.split(" ")[0]);
                 }
             });
