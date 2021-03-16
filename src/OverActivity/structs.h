@@ -13,10 +13,18 @@ enum class loggingLevel {
 };
 
 struct IP_t {
+	IP_t() {
+		setIpAddress("N/A");
+	}
+
+	IP_t(std::string ip) {
+		setIpAddress(ip);
+	}
+
 	std::string getIpAddress() {
 		return ip_address;
 	}
-	std::string setIpAddress(std::string new_ip) {
+	void setIpAddress(std::string new_ip) {
 		std::regex regexp("^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$");
 		if (std::regex_match(new_ip, regexp)) {
 			ip_address = new_ip;
@@ -26,10 +34,36 @@ struct IP_t {
 };
 
 struct serverRecord_t {
+	serverRecord_t(std::string name_2, IP_t ip_2) {
+		name = name_2;
+		ip = ip_2;
+	}
 	std::string name;
 	IP_t ip;
 };
 
+struct serverRecords_t {
+	std::vector<serverRecord_t> servers;
+
+	serverRecords_t() {
+		std::vector<serverRecord_t> tmp;
+		serverRecord_t tmp3 = serverRecord_t("test", IP_t("127.0.0.1"));
+		tmp.push_back(tmp3);
+		servers = tmp;
+	}
+
+
+	void addNew(serverRecord_t serv) {
+		servers.push_back(serv);
+	}
+	void addNew(std::string ip, std::string name) {
+		serverRecord_t tmp = serverRecord_t(name, IP_t(ip));
+
+ 		servers.push_back(tmp);
+	}
+};
+
+serverRecords_t* servers = new serverRecords_t();
 
 namespace palate {
 	const float pal_1_r = 0.92;

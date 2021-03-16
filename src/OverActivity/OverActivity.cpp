@@ -63,6 +63,14 @@ std::string findByKey(std::string content, std::string key) {
 
 auto lastCheck = std::chrono::system_clock::now().time_since_epoch();
 
+void updateServersCache() {
+	for (int i = 0; i <= servers->servers.size(); i++) {
+		serverRecord_t tmp = servers->servers.at(i);
+
+
+	}
+}
+
 #include "Utils.h"
 void serverSegmant(int x, int y) {
 	int draw_x, draw_y;
@@ -81,12 +89,12 @@ void serverSegmant(int x, int y) {
 	draw_x = x + 13;
 	draw_y = y + 13;
 
-	groupBox("Conni", 1, 500, 200, draw_x + 10, draw_y);
+	groupBox("Conni", 1, 500, 200, draw_x + 10, draw_y, palate::pal_1_r, palate::pal_1_g, palate::pal_1_b);
 	draw_x = draw_x + 13;
 	draw_y = draw_x + 13;
 
 	static float maxWidth = 0;
-	groupBox("Physical Servers", 1, 9 * maxWidth, 100, draw_x + 10, draw_y);
+	groupBox("Physical Servers", 1, 9 * maxWidth, 100, draw_x + 10, draw_y, palate::pal_1_r, palate::pal_1_g, palate::pal_1_b);
 	draw_x += 16;
 	draw_y += 21;
 
@@ -189,6 +197,9 @@ auto window = FindWindow(NULL, L"untitled - notepad");
 
 void main()
 {
+
+	servers->addNew("127.0.0.1", "Connis Main Server");
+
 	DirectOverlaySetOption(D2DOV_DRAW_FPS | D2DOV_FONT_IMPACT);
 	DirectOverlaySetup(drawLoop, window);
 	getchar();
