@@ -34,12 +34,43 @@ struct IP_t {
 };
 
 struct serverRecord_t {
+	struct cachedData_t {
+		cachedData_t(std::string name_t = "N/A",
+			std::string wanIP_t = "N/A",
+			std::string lanIP_t = "N/A",
+			std::string hostname_t = "N/A",
+			std::string uptime_t = "N/A",
+			std::string cpuUsage_t = "N/A",
+			std::string memoryUsage_t = "N/A",
+			std::string ping_t = "N/A"
+		) {
+			name = name_t;
+			wanIP = wanIP_t;
+			lanIP = lanIP_t;
+			hostname = hostname_t;
+			uptime = uptime_t;
+			cpuUsage = cpuUsage_t;
+			memoryUsage = memoryUsage_t;
+			ping = ping_t;
+		}
+		std::string name;
+		IP_t wanIP;
+		IP_t lanIP;
+		std::string hostname;
+		std::string uptime;
+		std::string cpuUsage;
+		std::string memoryUsage;
+		std::string ping;
+	};
+
 	serverRecord_t(std::string name_2, IP_t ip_2) {
 		name = name_2;
 		ip = ip_2;
 	}
 	std::string name;
 	IP_t ip;
+
+	cachedData_t cachedData;
 };
 
 struct serverRecords_t {

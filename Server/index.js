@@ -51,6 +51,9 @@ for (const name of Object.keys(nets)) {
 
 // Get client IP address from request object ----------------------
 getClientAddress = function (req) {
+    console.log(req.headers['x-forwarded-for']);
+    console.log(req.connection.remoteAddress);
+    
     return (req.headers['x-forwarded-for'] || '').split(',')[0] 
     || req.connection.remoteAddress.split(":")[3];
 };
@@ -58,7 +61,7 @@ async function handle(parsedURL, res, req)
 {
     if(parsedURL.pathname == "/info") {
         var target = getClientAddress(req);
-
+        console.log(target);
         session.pingHost (target, function (error, target, sent, rcvd) {
             var ms = rcvd - sent;
             if (error) {

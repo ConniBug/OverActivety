@@ -1,11 +1,16 @@
 #define _CRT_SECURE_NO_WARNINGS
 
+#define PROTOCAL "http://"
+#define PORT ":5000"
+#define PATH "/info"
+
 #include "src/Overlay/DirectOverlay.h"
 #include "src/Overlay/Overlay.h"
 #include <iostream>  
 #include <stdlib.h> 
 #include <chrono>
 #include "logging.h"
+#include "Utils.h"
 
 int windowLength = 1920;
 int windowHeight = 1080;
@@ -57,21 +62,33 @@ std::string findByKey(std::string content, std::string key) {
 	return "";
 }
 
-#define PROTOCAL "http://"
-#define PORT ":5000"
-#define PATH "/info"
-
 auto lastCheck = std::chrono::system_clock::now().time_since_epoch();
+
+void updateCache(std::string ip, serverRecord_t::cachedData_t* cachedData) {
+	auto info = Utils::GetStdoutFromCommand("curl http://" + ip + ":5000/info");
+
+	cachedData->name = findByKey(info, "name");;
+	cachedData->wanIP = IP_t(findByKey(info, "wanIP"));
+	cachedData->lanIP = IP_t(findByKey(info, "lanIP"));
+	cachedData->hostname = findByKey(info, "hostname");
+	cachedData->uptime = findByKey(info, "uptime");;
+	cachedData->cpuUsage = findByKey(info, "cpuUsage");;
+	cachedData->memoryUsage = findByKey(info, "memoryUsage");
+	cachedData->ping = Utils::getServerPing("google.com");
+}
 
 void updateServersCache() {
 	for (int i = 0; i <= servers->servers.size(); i++) {
 		serverRecord_t tmp = servers->servers.at(i);
+		if (tmp.cachedData.name == "N/A") {
+			// Cache hasnt been initiated
 
+			updateCache(tmp.ip.getIpAddress(), &tmp.cachedData);
+		}
 
 	}
 }
 
-#include "Utils.h"
 void serverSegmant(int x, int y) {
 	int draw_x, draw_y;
 	// 0, 0
