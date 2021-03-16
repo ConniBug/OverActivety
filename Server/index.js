@@ -44,7 +44,10 @@ exec("ipconfig", (error, stdout, stderr) => {
             console.log("----");
             stdout = (stdout.split("inet"))
             stdout.forEach(e => {
+                
                 if(e.includes(" ")) {
+                    console.log(e.split(" "))
+
                     localIPs.push(e.split(" ")[0]);
                 }
             });
