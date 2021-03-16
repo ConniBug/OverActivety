@@ -59,7 +59,7 @@ exec("ipconfig", (error, stdout, stderr) => {
             stdout.forEach(e => {
                 
                 if(e.includes(" ")) {
-                    if(char_count(e.split(" ")[0], ".") > 3) {
+                    if(char_count(e.split(" ")[0], ".") == 3) {
                         console.log(e.split(" ")[0])
                         localIPs.push(e.split(" ")[0]);
                     }
