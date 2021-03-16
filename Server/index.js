@@ -74,7 +74,7 @@ exec("ipconfig", (error, stdout, stderr) => {
             //stdout = stdout.split("inet ")[0].split("  ")[0].split("/")[0];
 
             console.log("----");
-            console.log(stdout.split("inet "))
+            console.log(stdout.split("inet"))
             console.log("----");
             
             localIPs.push(stdout);
