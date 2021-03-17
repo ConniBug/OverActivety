@@ -201,11 +201,11 @@ void mainLoop() {
 	ShowWindow(overlayWindow, 1);
 	UpdateWindow(overlayWindow);
 	SetLayeredWindowAttributes(overlayWindow, RGB(0, 0, 0), 255, LWA_ALPHA);
-	//if (setup) {
-	//	setup = !setup;
-	//	std::cout << "overlayWindow" << ": " << SetWindowDisplayAffinity(overlayWindow, 0x00000011) << std::endl;
-	//	std::cout << "overlayWindow last error" << ": " << GetLastError() << std::endl;
-	//}
+	if (setup) {
+		setup = !setup;
+		std::cout << "overlayWindow" << ": " << SetWindowDisplayAffinity(overlayWindow, 0x00000011) << std::endl;
+		std::cout << "overlayWindow last error" << ": " << GetLastError() << std::endl;
+	}
 
 	if (message.message != WM_QUIT)
 	{

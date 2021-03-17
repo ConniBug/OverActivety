@@ -314,7 +314,7 @@ void drawLoop(int width, int height) {
 	// Dim Background
 	DrawBox(0, 0, 1920, 1080, 1, 0.13, 0.18, 0.36, 0.9, true);
 
-	regions::top::left();
+	//regions::top::left();
 }
 
 auto window = FindWindow(NULL, L"untitled - notepad");
