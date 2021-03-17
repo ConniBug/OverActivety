@@ -9,10 +9,10 @@ const url = require('url');
 const request = require('request');
 const colors = require('colors');
 
-logLevel = "ALL";
+logLevel = "ERROR";
 function getLogLevelNum(level) {
-    if(level == "GENERIC")  return 1;
-    if(level == "ERROR")    return 2;
+    if(level == "ERROR")    return 1;
+    if(level == "GENERIC")  return 2;
     if(level == "DEBUG")    return 3;
     if(level == "ALL")      return 4;
     log("Unsure what log level " + level.red + " belongs to.", "GENERIC");

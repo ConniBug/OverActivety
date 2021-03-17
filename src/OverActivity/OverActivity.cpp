@@ -14,6 +14,7 @@
 #include "notificationHandler.h"
 
 int windowLength = 1920;
+int windowWidth = 1920;
 int windowHeight = 1080;
 #define FONT_SIZE 15
 
@@ -101,18 +102,18 @@ void serverSegmant(int x, int y) {
 		x + 600, y + 300,	// pos 2 
 		10, 10, 
 		2, 
-		palate::pal_1_r, palate::pal_1_g, palate::pal_1_b, 1,
+		palate::r_1, palate::g_1, palate::b_1, 1,
 		false);
 
 	draw_x = x + 13;
 	draw_y = y + 13;
 
-	groupBox("Conni", 1, 500, 200, draw_x + 10, draw_y, palate::pal_1_r, palate::pal_1_g, palate::pal_1_b);
+	groupBox("Conni", 1, 500, 200, draw_x + 10, draw_y, palate::r_1, palate::g_1, palate::b_1);
 	draw_x = draw_x + 13;
 	draw_y = draw_x + 13;
 
 	static float maxWidth = 0;
-	groupBox("Physical Servers", 1, 9 * maxWidth, 100, draw_x + 10, draw_y, palate::pal_1_r, palate::pal_1_g, palate::pal_1_b);
+	groupBox("Physical Servers", 1, 9 * maxWidth, 100, draw_x + 10, draw_y, palate::r_1, palate::g_1, palate::b_1);
 	draw_x += 16;
 	draw_y += 21;
 
@@ -141,7 +142,7 @@ void serverSegmant(int x, int y) {
 		
 		//ShellExecute(0, L"open", L"cmd.exe", L"server_1.bat > out.txt", 0, SW_HIDE);
 		//info = readFileAsString("./out.txt");
-		info = Utils::GetStdoutFromCommand("curl http://localhost:5000/info");
+		info = Utils::GetStdoutFromCommand("curl http://spookiebois.club:5000/info");
 
 		serverName		=	findByKey(info, "name");;
 		serverUptime	=	findByKey(info, "uptime");;
@@ -186,14 +187,91 @@ namespace regions {
 	}
 }
 
-void DrawNotifications() {
-
-	DrawBox(windowLength, windowHeight / 12, 0, 100, 2, 1, 0, 0, 1, true);
-}
-
 static bool lastDisplaying = false;
 static bool displaying = false;
-void drawLoop(int width, int height) {
+
+static bool anim_notif = false;
+static float currentWidth = 0;
+static float targetWidth = 0;
+static bool anim_slideIn = true;
+
+const float widthPerLetter = (FONT_SIZE / 2);
+
+int maxStrLength(std::string str) {
+	std::string lastYes = "";
+	for (int i = 0; i <= str.length(); i++) {
+		if (i * widthPerLetter < currentWidth) lastYes = str.substr(0, i);
+		else 
+			return lastYes.length();
+	}
+
+}
+
+bool DrawNotification(float x, float y, notifications_centre_t::notification_t notif) {
+	std::string textToDisplay = notif.Title.substr(0, maxStrLength(notif.Title));
+
+	bool done = false;
+	if (!anim_notif) {
+		anim_notif = true;
+		if (displaying) {
+			targetWidth = x + 200;
+		}
+		else 
+		{
+			targetWidth = 20 + ((FONT_SIZE / 2) * notif.Title.length());
+		}
+	}
+	else {
+		anim_notif = true;
+		float tmp = targetWidth / 12;
+		if (anim_slideIn) {
+			currentWidth += tmp;
+
+		}
+		else {
+			currentWidth -= tmp;
+
+		}
+		targetWidth -= tmp;
+		if (tmp <= 0.0001) {
+			if (anim_notif) {
+				if (anim_slideIn) {
+					anim_notif = false;
+					anim_slideIn = false;
+				}
+				else {
+					anim_slideIn = true;
+					currentWidth = 0.f;
+					done = true;
+				}
+			}
+			else 
+			{
+
+			}
+			targetWidth = 0;
+		}
+	}
+
+	if (displaying) {
+		DrawBox(x, y, x + currentWidth, y + 20, 2, palate::r_2, palate::g_2, palate::b_2, 1, true);
+
+		DrawString(textToDisplay, FONT_SIZE, x + 4, y + 4,		     palate::r_1, palate::g_1, palate::b_1, 1);
+		DrawString(textToDisplay, FONT_SIZE, x + 4, y + 4 + FONT_SIZE, palate::r_1, palate::g_1, palate::b_1, 1);
+	}
+	else {
+		DrawBox(x, y, x + currentWidth, y + 20, 2, palate::r_2, palate::g_2, palate::b_2, 1, true);
+
+		DrawString(textToDisplay, FONT_SIZE, x + 4, y + 4, palate::r_1, palate::g_1, palate::b_1, 1);
+	}
+
+	return done;
+}
+
+
+void drawLoop(int width, int height) {	
+	bool clearToDoHeavyWork = true;
+
 	if (lastDisplaying != displaying) {
 		lastDisplaying = displaying;
 		Sleep(1000);
@@ -203,13 +281,30 @@ void drawLoop(int width, int height) {
 		bool tt = GetAsyncKeyState(VK_SHIFT);
 		if(t &&  tt) {
 			displaying = !displaying;
+			clearToDoHeavyWork = false;
 		}
 	}
 
-	//CheckNotifications();
-	//DrawNotifications();
 
-	if (displaying) return;
+	static int currentNotif = 0;
+	if (notifications->notifications.size() - currentNotif > 0) {
+		clearToDoHeavyWork = false;
+
+
+		notifications_centre_t::notification_t tmpNotif = notifications->notifications.at(currentNotif);
+		if (DrawNotification(0.f, 90.f, tmpNotif)) {
+			currentNotif++;
+			anim_notif = false;
+			currentWidth = 0;
+			targetWidth = 0;
+			anim_slideIn = true;
+		}
+
+	}
+
+	if (clearToDoHeavyWork) CheckNotifications();
+
+	if (!displaying) return;
 		
 	//DrawLine(0, 0, 100, 100, 5, 1, 1, 0, .8);
 	//DrawBox(100, 100, 100, 100, 5, 0, 1, 0, 1, 0);

@@ -119,9 +119,14 @@ struct notifications_centre_t {
 };
 
 namespace palate {
-	const float pal_1_r = 0.92;
-	const float pal_1_g = 0.34;
-	const float pal_1_b = 0.56;
+	const float r_1 = 0.92;
+	const float g_1 = 0.34;
+	const float b_1 = 0.56;
+	
+	const float r_2 = 0.23;
+	const float g_2 = 0.29;
+	const float b_2 = 0.48;
+
 	uint64_t pal_2 = 0x3c4b7b;
 	uint64_t pal_3 = 0xffe4f5;
 	uint64_t pal_4 = 0xea9dc0;

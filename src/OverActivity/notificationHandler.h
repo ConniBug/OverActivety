@@ -44,6 +44,10 @@ void CheckNotifications() {
 		//int notification_count = std::stoi(nCountS);
 		//std::cout << notification_count << std::endl;
 		std::string res = findByKey2(nCountS, "count");
+		if (res == "") {
+			clog::log("Notification server unreachable");
+			return;
+		}
  		if (std::stoi(res) == 0) {
 			clog::log("No new notifications.");
 		}	
