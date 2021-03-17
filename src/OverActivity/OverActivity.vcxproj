@@ -149,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logging.h" />
+    <ClInclude Include="notificationHandler.h" />
     <ClInclude Include="src\Overlay\Colour.h" />
     <ClInclude Include="src\Overlay\DirectOverlay.h" />
     <ClInclude Include="src\Overlay\globalVars.h" />

@@ -171,10 +171,10 @@ void d2oSetup(HWND tWindow) {
 	WNDCLASS wc = { };
 	wc.lpfnWndProc = WindowProc;
 	wc.hInstance = GetModuleHandle(0);
-	wc.lpszClassName = L"ConnisOverlay";
+	wc.lpszClassName = L"OverActivety_Class";
 	RegisterClass(&wc);
 	overlayWindow = CreateWindowEx(WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOPMOST,
-		wc.lpszClassName, L"MainOverlay", WS_POPUP, 0, 0, 1920, 1080,
+		wc.lpszClassName, L"OverActivety_Overlay", WS_POPUP, 0, 0, 1920, 1080,
 		NULL, NULL, wc.hInstance, NULL);
 
 	targetWindow = overlayWindow;

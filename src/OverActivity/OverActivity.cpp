@@ -11,6 +11,7 @@
 #include <chrono>
 #include "logging.h"
 #include "Utils.h"
+#include "notificationHandler.h"
 
 int windowLength = 1920;
 int windowHeight = 1080;
@@ -145,7 +146,6 @@ void serverSegmant(int x, int y) {
 		serverName		=	findByKey(info, "name");;
 		serverUptime	=	findByKey(info, "uptime");;
 		serverWanIP		=	findByKey(info, "wanIP");;
-		serverLanIP		=	findByKey(info, "lanIP");;
 		serverLanIP		=	findByKey(info, "lanIP");
 		serverPing		=	Utils::getServerPing("google.com");
 	}
@@ -186,17 +186,29 @@ namespace regions {
 	}
 }
 
+void DrawNotifications() {
+
+	DrawBox(windowLength, windowHeight / 12, 0, 100, 2, 1, 0, 0, 1, true);
+}
+
 static bool lastDisplaying = false;
 static bool displaying = false;
 void drawLoop(int width, int height) {
 	if (lastDisplaying != displaying) {
 		lastDisplaying = displaying;
 		Sleep(1000);
-	}else if (GetAsyncKeyState(VK_CONTROL)) {
-		if (GetAsyncKeyState(VK_SHIFT)) {
+	}
+	else {
+		bool t = GetAsyncKeyState(VK_CONTROL);
+		bool tt = GetAsyncKeyState(VK_SHIFT);
+		if(t &&  tt) {
 			displaying = !displaying;
 		}
 	}
+
+	//CheckNotifications();
+	//DrawNotifications();
+
 	if (displaying) return;
 		
 	//DrawLine(0, 0, 100, 100, 5, 1, 1, 0, .8);
@@ -205,7 +217,7 @@ void drawLoop(int width, int height) {
 	//DrawEllipse(500, 100, 50, 20, 5, 1, 0, 0, 1, 0);
 
 	// Dim Background
-	DrawBox(0, 0, 1920, 1080, 1, 0.13, 0.18, 0.36, 0.8, true);
+	DrawBox(0, 0, 1920, 1080, 1, 0.13, 0.18, 0.36, 0.9, true);
 
 	regions::top::left();
 }
@@ -214,10 +226,10 @@ auto window = FindWindow(NULL, L"untitled - notepad");
 
 void main()
 {
-
 	servers->addNew("127.0.0.1", "Connis Main Server");
 
 	DirectOverlaySetOption(D2DOV_DRAW_FPS | D2DOV_FONT_IMPACT);
 	DirectOverlaySetup(drawLoop, window);
+
 	getchar();
 }

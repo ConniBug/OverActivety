@@ -94,7 +94,29 @@ struct serverRecords_t {
 	}
 };
 
-serverRecords_t* servers = new serverRecords_t();
+
+
+struct notifications_centre_t {
+	struct notification_t {
+		std::string Issuer;
+		std::string Description;
+		std::string Reason;
+		std::string ShortDescription;
+		std::string Title;
+
+		int TimeToClose;
+
+		bool displaying;
+	};
+
+	std::vector< notification_t > notifications;
+
+	struct preferences_t {
+		bool inGame;
+	};
+
+	preferences_t preferences;
+};
 
 namespace palate {
 	const float pal_1_r = 0.92;
@@ -106,3 +128,6 @@ namespace palate {
 	uint64_t pal_5 = 0xeb5890;
 
 }
+
+serverRecords_t*			servers			= new serverRecords_t();
+notifications_centre_t*		notifications	= new notifications_centre_t();

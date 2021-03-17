@@ -9,7 +9,7 @@ const url = require('url');
 const request = require('request');
 const colors = require('colors');
 
-logLevel = "ERROR";
+logLevel = "ALL";
 function getLogLevelNum(level) {
     if(level == "GENERIC")  return 1;
     if(level == "ERROR")    return 2;
@@ -87,6 +87,23 @@ const app = http.createServer( async (req, res) => {
 });
 app.listen(5000);
 
+const asyncGetAverageCPU = () => {
+    return new Promise(resolve => {
+        exec(`Powershell "Get-Counter '\Processor(*)\% Processor Time' | Select -Expand Countersamples | Select InstanceName, CookedValue"`, (error, stdout, stderr) => {
+            if (error) {
+                log(`error: ${stderr}`, "ERROR");
+                return;
+            }
+
+            if (stderr) {
+                log(`stderr: ${stderr}`, "ERROR");
+                return;
+            }
+
+            resolve(stdout.split("_total")[1].replace(/ /g, ""));
+        });
+    });
+}
 const asyncGetLanIPs = () => {
     return new Promise(resolve => {
         localIPs = [];
@@ -196,14 +213,17 @@ getClientAddress = function (req) {
     log("Getting client ip address", "DEBUG");
     log("x-forwarded-for: " + req.headers['x-forwarded-for'], "DEBUG");
     log("req.connection.remoteAddress: " + req.connection.remoteAddress, "DEBUG");
-    log(`IP: ${(req.headers['x-forwarded-for'] || '').split(',')[0] || req.connection.remoteAddress.split(":")[3]}`);
-    return (req.headers['x-forwarded-for'] || '').split(',')[0] || req.connection.remoteAddress.split(":")[3];
+    ip = (req.headers['x-forwarded-for'] || '').split(',')[0] || req.connection.remoteAddress.split(":")[3];
+    log(`IP: ${ip}`);
+    if(!ip) return "localhost";
+    return ip;
 };
 
 async function handle(parsedURL, res, req) {
     log(`-----------------------------`, "GENERIC");
     log(`Handling new request.`, "GENERIC");
     var target = getClientAddress(req);
+    log(`Ip is: ${target}`, "GENERIC");
     log(`Ip is: ${target.brightBlue}`, "GENERIC");
     log(`PathName: ${parsedURL.pathname.brightBlue}`, "GENERIC");
     
@@ -211,16 +231,16 @@ async function handle(parsedURL, res, req) {
         log(`Status Code: ${"202".brightBlue}`, "GENERIC");
             res.statusCode = 202;
             res.end(
-                        `
-                        name:${serverName},
-                        wanIP:${await asyncGetWanIP()},
-                        lanIP:${await asyncGetLanIPs()},
-                        hostname:${await asyncHostname()},
-                        uptime:,
-                        cpuUsage:,
-                        memoryUsage:,
-                        ping:,
-                        `
+`
+    name:${serverName},
+    wanIP:${await asyncGetWanIP()},
+    lanIP:${await asyncGetLanIPs()},
+    hostname:${await asyncHostname()},
+    uptime:,
+    cpuUsage:${await asyncGetAverageCPU()},
+    memoryUsage:,
+    ping:,
+`
             );
 
 
